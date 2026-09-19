@@ -1,57 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>maze.htm — the unoptimized web</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THIRD SPACE :: a home on the web</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="desktop">
-  <div class="window">
-    <div class="titlebar">
-      <span>maze.htm — the unoptimized web</span>
-      <div class="winbtns"><button>_</button><button>×</button></div>
+
+<div id="desktop"></div>
+
+<div id="taskbar">
+  <button class="btn-95" id="menubtn" onclick="toggleStart()">☰ home</button>
+  <div id="openTabs"></div>
+  <div id="clock">00:00</div>
+</div>
+
+<div id="startMenu">
+  <button onclick="openWindow('win-home'); toggleStart(false)">🏠 welcome.htm</button>
+  <hr>
+  <button onclick="openWindow('win-data'); toggleStart(false)">🗃 the data room</button>
+  <button onclick="openWindow('win-mail'); toggleStart(false)">✉ the correspondence room</button>
+  <button onclick="openWindow('win-gallery'); toggleStart(false)">🖌 the signed-work room</button>
+  <hr>
+  <button onclick="openWindow('win-about'); toggleStart(false)">? about this project</button>
+</div>
+
+<!-- ===================== HOME WINDOW ===================== -->
+<div class="window open" id="win-home" style="width:420px; top:40px; left:40px; z-index:10;">
+  <div class="titlebar" onpointerdown="startDrag(event,'win-home')">
+    <span class="ttl">welcome.htm — my home</span>
+    <div class="winbtns">
+      <button onclick="minimizeWindow('win-home')">_</button>
+      <button onclick="closeWindow('win-home')">×</button>
     </div>
-    <div class="winbody">
-      <div class="kicker">PROTOTYPE 02 — THE UNOPTIMIZED WEB</div>
-      <h1 class="roomtitle">find the story about the lighthouse</h1>
-      <div class="q">prototype question: can friction produce attention or discovery that frictionless design eliminates — or does it just annoy people? try the same task in both modes.</div>
+  </div>
+  <div class="winbody">
+    <h2 class="roomtitle">hi. you found this place.</h2>
+    <p>this is a small home on the internet. it isn't trying to convert you, sell you anything,
+      or guess what you want next. it just sits here, and you can walk through it.</p>
+    <p>everything here works a little slower than what you're used to. that's on purpose —
+      it's the whole point, actually.</p>
+    <p style="text-align:center;">
+      <span class="counter">you are visitor # 004,812</span>
+    </p>
+    <hr class="dots">
+    <p><b>rooms in this house</b> — click an icon on the desktop, or use the menu in the
+      bottom left corner:</p>
+    <ul>
+      <li><a class="retro" onclick="openWindow('win-data')">the data room</a> — where you trade a piece of your week for a piece of someone else's</li>
+      <li><a class="retro" onclick="openWindow('win-mail')">the correspondence room</a> — where a message costs you something to send</li>
+      <li><a class="retro" onclick="openWindow('win-gallery')">the signed-work room</a> — where what you make is proven by the making of it, not by a price</li>
+    </ul>
+    <hr class="dots">
+    <p style="font-size:12px; color:#555;">
+      best viewed by a person, not an algorithm &nbsp;·&nbsp;
+      <span class="blinktext">under construction, always</span>
+    </p>
+  </div>
+</div>
 
-      <div class="modeSwitch">
-        <button id="btnOpt" class="active" onclick="setMode('optimized')">OPTIMIZED</button>
-        <button id="btnUnopt" onclick="setMode('unoptimized')">UNOPTIMIZED</button>
-      </div>
-      <div class="task">your task: find the story about the lighthouse. click count and time are being tracked either way.</div>
+<!-- ===================== DATA ROOM WINDOW ===================== -->
+<div class="window" id="win-data" style="width:400px; top:80px; left:110px; z-index:9;">
+  <div class="titlebar" onpointerdown="startDrag(event,'win-data')">
+    <span class="ttl">mydata.htm — the data room</span>
+    <div class="winbtns">
+      <button onclick="minimizeWindow('win-data')">_</button>
+      <button onclick="closeWindow('win-data')">×</button>
+    </div>
+  </div>
+  <div class="winbody">
+    <h2 class="roomtitle">how was your week?</h2>
+    <p style="font-size:12px; color:#444;">
+      color in the grid below — each square is a day, darker means more of whatever you're
+      tracking (energy, mood, whatever you want it to mean). when you're done, mail it.
+      but you won't see anyone else's until you send your own. that's the rule of the room.
+    </p>
+    <div class="datagrid" id="myGrid"></div>
+    <button class="btn-95" id="mailDataBtn" onclick="mailData()">mail it →</button>
+    <span id="dataStatus" style="font-size:12px; margin-left:8px;"></span>
 
-      <div id="optimizedView">
-        <div class="search-row">
-          <input class="field" id="searchBox" placeholder="search..." oninput="filterOptimized()">
-        </div>
-        <div class="items-optimized" id="optList"></div>
-      </div>
-
-      <div id="unoptimizedView" style="display:none;">
-        <div class="loading" id="loadingMsg" style="display:none;">loading, for some reason...</div>
-        <div class="maze" id="mazeGrid"></div>
-      </div>
-
-      <div class="result" id="resultBox"></div>
-      <div class="stats" id="statsBox"></div>
-
-      <div class="reflect" id="reflectBox" style="display:none;">
-        <label>how engaged did that feel? (1 = tedious, 5 = absorbing)</label>
-        <input type="range" min="1" max="5" value="3" id="engageSlider" oninput="document.getElementById('engageVal').textContent=this.value" style="width:100%;">
-        <div style="font-size:12px;">rating: <span id="engageVal">3</span></div>
-        <button class="btn-95" style="margin-top:10px;" onclick="logReflection()">log this</button>
-        <div id="reflectLog" style="font-size:12px; margin-top:10px; color:#444;"></div>
-      </div>
+    <div id="partnerReveal" style="display:none; margin-top:16px;">
+      <hr class="dots">
+      <p style="font-size:12px; color:#444;">someone else's week, in their own hand:</p>
+      <div class="datagrid partnergrid" id="partnerGrid"></div>
+      <p style="font-size:11px; color:#666; margin-top:6px;">
+        (this is a stand-in for now — in the full version this comes from a real person
+        who traded with you, not a script.)
+      </p>
+    </div>
+    <div id="lockedMsg" class="locked-msg" style="margin-top:14px;">
+      nothing to see here yet. give something to get something.
     </div>
   </div>
 </div>
 
-<div id="taskbar">
-  <div class="tab">maze.htm</div>
-  <div id="clock">00:00</div>
+<!-- ===================== CORRESPONDENCE ROOM WINDOW ===================== -->
+<div class="window" id="win-mail" style="width:400px; top:120px; left:60px; z-index:8;">
+  <div class="titlebar" onpointerdown="startDrag(event,'win-mail')">
+    <span class="ttl">letters.htm — the correspondence room</span>
+    <div class="winbtns">
+      <button onclick="minimizeWindow('win-mail')">_</button>
+      <button onclick="closeWindow('win-mail')">×</button>
+    </div>
+  </div>
+  <div class="winbody">
+    <h2 class="roomtitle">write to someone</h2>
+    <p style="font-size:12px; color:#444;">
+      there's no autocomplete here, and no way to know if it's been read. once it's sent,
+      it's sent — you can't take it back or fix a typo. take your time.
+    </p>
+    <textarea class="field" id="mailText" rows="4" placeholder="start writing..." oninput="onMailInput()"></textarea>
+    <div class="voice" id="mailVoice"></div>
+    <button class="btn-95" id="sendBtn" onclick="sendMail()" disabled>send</button>
+    <span id="mailTimer" style="font-size:12px; margin-left:6px; color:#660000;"></span>
+    <hr class="dots">
+    <div id="sentList"></div>
+  </div>
+</div>
+
+<!-- ===================== SIGNED-WORK ROOM WINDOW ===================== -->
+<div class="window" id="win-gallery" style="width:420px; top:160px; left:150px; z-index:7;">
+  <div class="titlebar" onpointerdown="startDrag(event,'win-gallery')">
+    <span class="ttl">gallery.htm — the signed-work room</span>
+    <div class="winbtns">
+      <button onclick="minimizeWindow('win-gallery')">_</button>
+      <button onclick="closeWindow('win-gallery')">×</button>
+    </div>
+  </div>
+  <div class="winbody">
+    <h2 class="roomtitle">make something</h2>
+    <p style="font-size:12px; color:#444;">
+      write or revise below. every time you save a draft, it stays in the trail — that trail
+      is what proves this is yours. not a ledger, not a price. just the visible work of making it.
+    </p>
+    <textarea class="field" id="workText" rows="4" placeholder="a few lines, a sketch in words, anything..."></textarea>
+    <button class="btn-95" onclick="saveDraft()">save draft</button>
+    <button class="btn-95" onclick="signWork()">sign &amp; display</button>
+    <div class="draft-log" id="draftLog"></div>
+    <div id="finalPiece"></div>
+  </div>
+</div>
+
+<!-- ===================== ABOUT WINDOW ===================== -->
+<div class="window" id="win-about" style="width:380px; top:200px; left:200px; z-index:6;">
+  <div class="titlebar" onpointerdown="startDrag(event,'win-about')">
+    <span class="ttl">about.htm</span>
+    <div class="winbtns">
+      <button onclick="minimizeWindow('win-about')">_</button>
+      <button onclick="closeWindow('win-about')">×</button>
+    </div>
+  </div>
+  <div class="winbody">
+    <h2 class="roomtitle">what this is</h2>
+    <p>a working prototype of what an internet built around reciprocity, instead of
+      optimization, might feel like. every room refuses to make itself easier in a
+      different way — the data room asks for something back, the correspondence room
+      asks for time and commitment, and the signed-work room asks for visible labor
+      instead of a market.</p>
+    <p style="font-size:12px; color:#555;">this is a thesis prototype, not a finished
+      product. it's meant to be felt, not just read about.</p>
+  </div>
 </div>
 
 <script src="script.js"></script>
