@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ourdata.htm — the social data web</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="desktop">
+  <div class="window">
+    <div class="titlebar">
+      <span>ourdata.htm — the social data web</span>
+      <div class="winbtns"><button>_</button><button>×</button></div>
+    </div>
+    <div class="winbody">
+      <div class="kicker">PROTOTYPE 05 — THE SOCIAL DATA WEB</div>
+      <h1 class="roomtitle">a relationship, not a dashboard</h1>
+      <div class="q">prototype question: can data represent a relationship instead of reducing it to a metric? log a few exchanges between two people and watch what forms — a constellation, not a follower count.</div>
+
+      <div class="actionRow">
+        <button onclick="logEvent('shared')">shared a thought</button>
+        <button onclick="logEvent('disagreed')">disagreed</button>
+        <button onclick="logEvent('introduced')">introduced something new</button>
+        <button onclick="logEvent('returned')">returned to an old topic</button>
+      </div>
+
+      <div class="stage">
+        <svg id="svgStage" viewBox="0 0 400 300"></svg>
+        <div class="summary" id="summaryLine">nothing has happened between you yet.</div>
+      </div>
+
+      <div class="toggleNumbers"><a onclick="toggleNumbers()">show the numbers instead</a></div>
+      <div class="numbers" id="numbersBox"></div>
+    </div>
+  </div>
+</div>
+
+<div id="taskbar">
+  <div class="tab">ourdata.htm</div>
+  <div id="clock">00:00</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

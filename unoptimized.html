@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>maze.htm — the unoptimized web</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="desktop">
+  <div class="window">
+    <div class="titlebar">
+      <span>maze.htm — the unoptimized web</span>
+      <div class="winbtns"><button>_</button><button>×</button></div>
+    </div>
+    <div class="winbody">
+      <div class="kicker">PROTOTYPE 02 — THE UNOPTIMIZED WEB</div>
+      <h1 class="roomtitle">find the story about the lighthouse</h1>
+      <div class="q">prototype question: can friction produce attention or discovery that frictionless design eliminates — or does it just annoy people? try the same task in both modes.</div>
+
+      <div class="modeSwitch">
+        <button id="btnOpt" class="active" onclick="setMode('optimized')">OPTIMIZED</button>
+        <button id="btnUnopt" onclick="setMode('unoptimized')">UNOPTIMIZED</button>
+      </div>
+      <div class="task">your task: find the story about the lighthouse. click count and time are being tracked either way.</div>
+
+      <div id="optimizedView">
+        <div class="search-row">
+          <input class="field" id="searchBox" placeholder="search..." oninput="filterOptimized()">
+        </div>
+        <div class="items-optimized" id="optList"></div>
+      </div>
+
+      <div id="unoptimizedView" style="display:none;">
+        <div class="loading" id="loadingMsg" style="display:none;">loading, for some reason...</div>
+        <div class="maze" id="mazeGrid"></div>
+      </div>
+
+      <div class="result" id="resultBox"></div>
+      <div class="stats" id="statsBox"></div>
+
+      <div class="reflect" id="reflectBox" style="display:none;">
+        <label>how engaged did that feel? (1 = tedious, 5 = absorbing)</label>
+        <input type="range" min="1" max="5" value="3" id="engageSlider" oninput="document.getElementById('engageVal').textContent=this.value" style="width:100%;">
+        <div style="font-size:12px;">rating: <span id="engageVal">3</span></div>
+        <button class="btn-95" style="margin-top:10px;" onclick="logReflection()">log this</button>
+        <div id="reflectLog" style="font-size:12px; margin-top:10px; color:#444;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="taskbar">
+  <div class="tab">maze.htm</div>
+  <div id="clock">00:00</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

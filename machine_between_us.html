@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>between.htm — the machine between us</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="desktop">
+  <div class="window">
+    <div class="titlebar">
+      <span>between.htm — the machine between us</span>
+      <div class="winbtns"><button>_</button><button>×</button></div>
+    </div>
+    <div class="winbody">
+      <div class="kicker">PROTOTYPE 04 — THE MACHINE BETWEEN US</div>
+      <h1 class="roomtitle">a conversation, with a third participant</h1>
+      <div class="q">prototype question: what happens to a relationship when AI mediates communication between two people — and does making its edits visible change whether you want them?</div>
+
+      <div class="toggleRow">
+        <span>AI mediation:</span>
+        <button id="aiOn" class="active" onclick="setAI(true)">ON</button>
+        <button id="aiOff" onclick="setAI(false)">OFF</button>
+      </div>
+
+      <div class="interceptBox" id="intercept">
+        <div class="lbl">THE MACHINE WANTS TO CHANGE THIS BEFORE IT SENDS:</div>
+        <div class="original" id="origText"></div>
+        <div class="revised" id="revText"></div>
+        <div class="why" id="whyText"></div>
+        <button onclick="acceptEdit()">send the machine's version</button>
+        <button onclick="rejectEdit()">send what I actually wrote</button>
+      </div>
+
+      <div class="thread" id="thread"></div>
+      <div class="composer">
+        <input class="field" id="msgInput" placeholder="write to them..." onkeydown="if(event.key==='Enter') trySend()">
+        <button class="btn-95" onclick="trySend()">send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="taskbar">
+  <div class="tab">between.htm</div>
+  <div id="clock">00:00</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

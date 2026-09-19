@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>whoknows.htm — the human search engine</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="desktop">
+  <div class="window">
+    <div class="titlebar">
+      <span>whoknows.htm — the human search engine</span>
+      <div class="winbtns"><button>_</button><button>×</button></div>
+    </div>
+    <div class="winbody">
+      <div class="kicker">PROTOTYPE 03 — THE HUMAN SEARCH ENGINE</div>
+      <h1 class="roomtitle">who might know?</h1>
+      <div class="q">prototype question: what happens when information retrieval becomes a form of human connection instead of extraction? search for a topic — you'll get people, not pages.</div>
+
+      <div class="search-row">
+        <input class="field" id="q" placeholder="try: old websites, birds, grief, cooking..." onkeydown="if(event.key==='Enter') search()">
+        <button class="btn-95" onclick="search()">ask around</button>
+      </div>
+      <div class="hint">real search engines return pages ranked by relevance. this one returns people, ranked by nothing in particular.</div>
+      <div id="results"></div>
+    </div>
+  </div>
+</div>
+
+<div id="taskbar">
+  <div class="tab">whoknows.htm</div>
+  <div id="clock">00:00</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

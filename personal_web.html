@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>personal.htm — the personal web</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="desktop">
+  <div class="window">
+    <div class="titlebar">
+      <span>personal.htm — the personal web</span>
+      <div class="winbtns"><button>_</button><button>×</button></div>
+    </div>
+    <div class="winbody">
+      <div class="kicker">PROTOTYPE 01 — THE PERSONAL WEB</div>
+      <h1 class="roomtitle">make a space, not a profile</h1>
+      <div class="q">prototype question: what makes a digital space feel like it belongs to a person? there's almost no template here — only optional blocks. add only what feels like yours.</div>
+
+      <div class="toolbar">
+        <button class="btn-95 active" id="tabBuild" onclick="setTab('build')">build</button>
+        <button class="btn-95" id="tabPreview" onclick="setTab('preview')">preview as a visitor</button>
+      </div>
+
+      <div id="buildView">
+        <div class="addrow" id="addRow"></div>
+        <div id="blocksContainer"></div>
+        <div class="findings" id="findings"></div>
+      </div>
+
+      <div id="previewView" style="display:none;">
+        <div class="preview" id="previewBody"><em>nothing here yet.</em></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="taskbar">
+  <div class="tab">personal.htm</div>
+  <div id="clock">00:00</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
