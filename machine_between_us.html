@@ -15,7 +15,7 @@
     <div class="winbody">
       <div class="kicker">PROTOTYPE 04 — THE MACHINE BETWEEN US</div>
       <h1 class="roomtitle">a conversation, with a third participant</h1>
-      <div class="q">prototype question: what happens to a relationship when AI mediates communication between two people — and does making its edits visible change whether you want them?</div>
+      <div class="q">the machine here isn't obviously bad — it can make you clearer, kinder, more confident. if it does, what happens to the hesitation and authorship that were part of the original?</div>
 
       <div class="toggleRow">
         <span>AI mediation:</span>
@@ -24,19 +24,37 @@
       </div>
 
       <div class="interceptBox" id="intercept">
-        <div class="lbl">THE MACHINE WANTS TO CHANGE THIS BEFORE IT SENDS:</div>
+        <div class="lbl">WHAT I WROTE</div>
         <div class="original" id="origText"></div>
+        <div class="lbl" style="margin-top:8px;">WHAT THE MACHINE PROPOSES</div>
         <div class="revised" id="revText"></div>
-        <div class="why" id="whyText"></div>
+        <div class="lbl" style="margin-top:8px;">WHAT IT CHANGED / REMOVED</div>
+        <div id="removedText" style="margin-bottom:6px;"></div>
+        <div class="lbl">WHAT IT INFERRED ABOUT YOU</div>
+        <div class="why" id="whyText" style="margin-bottom:6px;"></div>
+        <div class="lbl">WHAT IT PREDICTS THEY'LL FEEL</div>
+        <div id="predictText" style="margin-bottom:6px; font-size:12px;"></div>
+        <div class="lbl">WHAT YOU GIVE UP IF YOU ACCEPT</div>
+        <div id="giveupText" style="margin-bottom:10px; font-size:12px; font-weight:bold;"></div>
         <button onclick="acceptEdit()">send the machine's version</button>
         <button onclick="rejectEdit()">send what I actually wrote</button>
       </div>
 
       <div class="thread" id="thread"></div>
       <div class="composer">
-        <input class="field" id="msgInput" placeholder="write to them..." onkeydown="if(event.key==='Enter') trySend()">
+        <input class="field" id="msgInput" placeholder="write to them... try: 'i don't really know how to say this but i think i'm upset'" onkeydown="if(event.key==='Enter') trySend()">
         <button class="btn-95" onclick="trySend()">send</button>
       </div>
+      <div class="tally" id="tallyBox"></div>
+
+      <details class="testing-footer">
+        <summary>what this prototype is testing</summary>
+        <div><b>QUESTION:</b> if AI mediation makes communication clearer, kinder, and more effective, what happens to the ambiguity, hesitation, and authorship of the original message?</div>
+        <div><b>INTERVENTION:</b> the machine's edits are shown in full before sending — including what it removed, what it inferred about your emotional state, and what you specifically give up by accepting.</div>
+        <div><b>TRADEOFF:</b> the machine's version is usually more legible and less likely to be misread — at the cost of the hesitation or roughness that may have been part of what you actually meant.</div>
+        <div><b>OBSERVATION:</b> watch your own accept/reject pattern over several messages — do you accept more often as the conversation goes on, and do you notice when you stop reading the intercept panel closely?</div>
+        <div><b>LIMITATION:</b> this machine is honest about its edits by design — a real deployed system has no incentive to show you what it removed, which is itself a finding worth sitting with.</div>
+      </details>
     </div>
   </div>
 </div>

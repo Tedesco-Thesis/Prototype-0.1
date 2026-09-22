@@ -564,3 +564,35 @@ svg { display:block; width:100%; height:300px; }
 .numbers { display:none; font-size:12px; color:#444; background:#e8e4d8; border:1px inset #999; padding:10px; margin-bottom:14px; }
 
 .numbers.show { display:block; }
+
+/* ===== shared: comparison components + testing footer (added across the prototype series) ===== */
+.generic-card { background:#fff; border:1px solid #e5e5e5; border-radius:10px; padding:16px; font-family:-apple-system,Helvetica,Arial,sans-serif; box-shadow:0 1px 4px rgba(0,0,0,0.08); color:#222; margin-bottom:10px; }
+.generic-card .gname { font-weight:bold; font-size:15px; }
+.generic-card .gmeta { font-size:12px; color:#666; margin:4px 0; }
+.generic-card .gbio { font-size:13px; margin-top:6px; }
+
+.machine-card { background:#0a0a0a; color:#ffb000; font-family:'Courier New',monospace; padding:12px; font-size:12px; margin-bottom:10px; }
+.machine-card .trait { display:inline-block; border:1px solid #ffb000; padding:2px 8px; margin:2px; }
+
+h3.cmp { font-family:'Courier New',monospace; font-size:12px; margin:14px 0 6px; color:#000080; border-bottom:1px dotted #999; padding-bottom:3px; }
+
+.testing-footer { margin-top:22px; border-top:2px dotted #808080; padding-top:10px; font-size:11px; color:#4a4a4a; }
+.testing-footer summary { cursor:pointer; font-family:'Courier New',monospace; font-size:11px; color:#000080; }
+.testing-footer div { margin:6px 0 0; }
+
+.friction-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.friction-tags button { font-size:11px; padding:6px 10px; border:2px outset #dcdcdc; background:#dcdcdc; cursor:pointer; font-family:Georgia,serif; }
+.friction-tags button.picked { border-style:inset; background:#000080; color:#fff; }
+
+.uncertainty-box { border:1px dashed #996600; background:#fff3d6; padding:8px; font-size:12px; margin:8px 0; }
+.disagree-box { border-left:3px solid #a0522d; background:#fdf1ea; padding:8px; font-size:13px; margin-top:8px; }
+
+.tally { font-family:'Courier New',monospace; font-size:11px; color:#444; margin-top:10px; border-top:1px dotted #999; padding-top:8px; }
+
+.dual-view { display:flex; gap:6px; margin-bottom:10px; }
+.dual-view button { flex:1; font-size:11px; padding:6px; border:2px outset #dcdcdc; background:#dcdcdc; cursor:pointer; font-family:'Courier New',monospace; }
+.dual-view button.active { border-style:inset; background:#000080; color:#fff; }
+.human-log { font-size:13px; }
+.human-log .entry { padding:6px 0; border-bottom:1px dotted #cfc09a; }
+.metrics-panel { font-family:'Courier New',monospace; font-size:12px; }
+.metrics-panel .stat-row { display:flex; justify-content:space-between; border-bottom:1px solid #d8cba0; padding:5px 0; }

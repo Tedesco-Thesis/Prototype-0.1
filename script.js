@@ -332,6 +332,56 @@ function renderPreview() {
     if (id === 'title') return `<h2 style="font-family:Georgia,serif;">${val}</h2>`;
     return `<p><b>${meta.label}:</b><br>${val}</p>`;
   }).join('');
+  syncCompare();
+}
+
+/* ---- mode switching: your place / standardized profile / compare ---- */
+const pageLoadTime = Date.now();
+function setMode(m) {
+  document.getElementById('tabPlace').classList.toggle('active', m==='place');
+  document.getElementById('tabStandard').classList.toggle('active', m==='standard');
+  document.getElementById('tabCompare').classList.toggle('active', m==='compare');
+  document.getElementById('placeView').style.display = m==='place' ? 'block':'none';
+  document.getElementById('standardView').style.display = m==='standard' ? 'block':'none';
+  document.getElementById('compareView').style.display = m==='compare' ? 'block':'none';
+  if (m === 'compare') syncCompare();
+}
+
+function renderStandardCard() {
+  const name = document.getElementById('stdName').value || 'unnamed';
+  const age = document.getElementById('stdAge').value;
+  const cat = document.getElementById('stdCategory').value;
+  const bio = document.getElementById('stdBio').value;
+  document.getElementById('bioCount').textContent = bio.length + '/80';
+  document.getElementById('standardCard').innerHTML = `
+    <div class="gname">${name.replace(/</g,'&lt;')}</div>
+    <div class="gmeta">${age || 'age range not set'} · ${cat || 'category not set'}</div>
+    <div class="gbio">${bio ? bio.replace(/</g,'&lt;') : 'no bio provided'}</div>
+  `;
+  syncCompare();
+}
+
+function computeMachineProfile() {
+  const used = Object.keys(blocks).filter(k => blocks[k] && blocks[k].trim());
+  const totalChars = used.reduce((sum,k) => sum + blocks[k].length, 0);
+  const minutes = Math.max(1, Math.round((Date.now() - pageLoadTime) / 60000));
+  const traits = [];
+  traits.push(totalChars > 150 ? 'expansive writer' : totalChars > 0 ? 'brief, economical' : 'has written nothing yet');
+  traits.push(used.includes('guestbook') ? 'invites strangers in' : 'keeps visitors at a distance');
+  traits.push(used.includes('freewrite') ? 'comfortable with open-ended self-description' : 'avoided open-ended self-description');
+  traits.push(used.length >= 5 ? 'high engagement with the builder' : 'low engagement with the builder');
+  traits.push(`spent about ${minutes} minute${minutes===1?'':'s'} on this page`);
+  return traits;
+}
+
+function syncCompare() {
+  const placeEl = document.getElementById('comparePlace');
+  const stdEl = document.getElementById('compareStandard');
+  const machineEl = document.getElementById('compareMachine');
+  if (!placeEl) return;
+  placeEl.innerHTML = document.getElementById('previewBody').innerHTML;
+  stdEl.innerHTML = document.getElementById('standardCard').innerHTML;
+  machineEl.innerHTML = computeMachineProfile().map(t => `<span class="trait">${t}</span>`).join('');
 }
 
 
@@ -342,22 +392,25 @@ let clicks = 0;
 const log = [];
 
 const optimizedItems = [
-  { title: 'The Lighthouse at the End of the Road', match:true },
-  { title: 'Ten Tips for Faster Mornings', match:false },
-  { title: 'A History of Bicycle Bells', match:false },
+  { title: 'The Lighthouse at the End of the Road', match:true, confidence: 61 },
+  { title: 'Ten Tips for Faster Mornings', match:false, confidence: 24 },
+  { title: 'A History of Bicycle Bells', match:false, confidence: 15 },
 ];
 
 function setMode(m) {
   mode = m;
   document.getElementById('btnOpt').classList.toggle('active', m==='optimized');
+  document.getElementById('btnSeamful').classList.toggle('active', m==='seamful');
   document.getElementById('btnUnopt').classList.toggle('active', m==='unoptimized');
   document.getElementById('optimizedView').style.display = m==='optimized' ? 'block':'none';
+  document.getElementById('seamfulView').style.display = m==='seamful' ? 'block':'none';
   document.getElementById('unoptimizedView').style.display = m==='unoptimized' ? 'block':'none';
   document.getElementById('resultBox').classList.remove('show');
   document.getElementById('reflectBox').style.display = 'none';
   clicks = 0;
   startTime = Date.now();
   if (m === 'optimized') renderOptimized(optimizedItems);
+  else if (m === 'seamful') renderSeamful();
   else renderMaze();
 }
 
@@ -371,6 +424,27 @@ function filterOptimized() {
   const q = document.getElementById('searchBox').value.toLowerCase();
   const filtered = optimizedItems.filter(i => i.title.toLowerCase().includes(q));
   renderOptimized(q ? filtered : optimizedItems);
+}
+
+function renderSeamful() {
+  const q = (document.getElementById('seamfulSearchBox').value || '').toLowerCase();
+  const pool = q ? optimizedItems.filter(i => i.title.toLowerCase().includes(q)) : optimizedItems;
+  const el = document.getElementById('seamfulResult');
+  if (pool.length === 0) { el.innerHTML = '<div class="uncertainty-box">nothing matches that. the system has no guess.</div>'; return; }
+  const top = pool[0];
+  const rest = pool.slice(1);
+  el.innerHTML = `
+    <div class="uncertainty-box">
+      the system is <b>${top.confidence}% confident</b> this is what you want. it is showing you that number instead of hiding it.
+    </div>
+    <div class="items-optimized">
+      <div class="item" onclick="found(${top.match})">${top.title} <span style="float:right; font-size:11px; color:#000080;">${top.confidence}%</span></div>
+    </div>
+    ${rest.length ? '<div style="font-size:11px; color:#666; margin:8px 0 4px;">other possibilities the system considered:</div>' : ''}
+    <div class="items-optimized">
+      ${rest.map(i => `<div class="item" onclick="found(${i.match})">${i.title} <span style="float:right; font-size:11px; color:#666;">${i.confidence}%</span></div>`).join('')}
+    </div>
+  `;
 }
 
 let mazeStage = 0;
@@ -425,10 +499,11 @@ function found(match) {
   }
 }
 
-function logReflection() {
-  const val = document.getElementById('engageVal').textContent;
+function tagFriction(tag, btn) {
+  document.querySelectorAll('#frictionTags button').forEach(b => b.classList.remove('picked'));
+  btn.classList.add('picked');
   const el = document.getElementById('reflectLog');
-  el.innerHTML += `<div>${mode}: rated ${val}/5 for engagement</div>`;
+  el.innerHTML += `<div>${mode}: tagged as "${tag}"</div>`;
 }
 
 setMode('optimized');
@@ -446,11 +521,12 @@ const people = [
   { name:'Mara', tags:['drawing','music','diaries','old websites'], about:'draws the same bus stop over and over. has a page, barely updates it.' },
   { name:'Theo', tags:['grief','music','memory','mixtapes'], about:'makes a mixtape every time someone he loves dies. there are twelve so far.' },
   { name:'Lucia', tags:['cooking','disagreement','family','tradition'], about:'will fight you about the correct way to make rice. she is usually right.' },
+  { name:'Wren', tags:['javascript','code'], about:'shares an office with Sam. not really a coder, honestly.', weak:true },
 ];
 
 const canned = {
-  'Mina': "sure — start with a webring. don't overthink your homepage, just make it.",
-  'Jon': "the wayback machine has more than you'd think. i can send you a few starting points.",
+  'Mina': "sure — start with a webring. don't overthink your homepage, just make it. (Jon disagrees with me on this, for what it's worth.)",
+  'Jon': "honestly? I think Mina's wrong on this one — webrings are cute but they just slow you down. go straight to the wayback machine.",
   'Priya': "go out at dawn. bring coffee. don't expect much the first few times.",
   'Deshawn': "there's no right way to write about it. just start with one true detail.",
   'Aiko': "start with something forgiving, like sauerkraut. it's hard to mess up.",
@@ -458,7 +534,8 @@ const canned = {
   'Okafor': "i'll send my reading list. read the introductions first, always.",
   'Mara': "i don't really have advice. i just keep making the thing.",
   'Theo': "start with one song you can't listen to yet. build outward from there.",
-  'Lucia': "butter, not oil. i don't care what the recipe says."
+  'Lucia': "butter, not oil. i don't care what the recipe says.",
+  'Wren': "honestly, not really my area — ask Sam instead, they'll actually know."
 };
 
 function search() {
@@ -476,9 +553,11 @@ function search() {
     return;
   }
 
-  results.innerHTML = scored.slice(0,4).map(s => `
+  const intro = `<div class="uncertainty-box">I don't know for certain. here ${scored.length===1?'is one person':'are '+Math.min(scored.length,4)+' people'} who might — some of them may not agree with each other.</div>`;
+
+  results.innerHTML = intro + scored.slice(0,4).map(s => `
     <div class="person-card">
-      <div class="name">${s.p.name}</div>
+      <div class="name">${s.p.name}${s.p.weak ? ' <span style="font-size:10px; color:#999;">(unsure this is a good match)</span>' : ''}</div>
       <div class="about">${s.p.about}</div>
       <div class="reason">reason: knows something about ${s.p.tags.filter(t=>q.includes(t)||t.includes(q)).join(', ')}</div>
       <button class="askbtn" onclick="ask('${s.p.name}', this)">ask ${s.p.name}</button>
@@ -519,28 +598,53 @@ function addAnnotation(text) {
 
 function machineEdit(text) {
   const lower = text.toLowerCase();
+
+  if (lower.includes("don't really know how to say this") || lower.includes("i guess") || lower.startsWith('um')) {
+    const revised = "I want to be honest with you: I'm feeling upset and I think we should talk about it.";
+    return {
+      revised,
+      removed: ['hesitation ("I don\'t really know how to say this")', 'the hedge "I think" softening your own feeling'],
+      inferred: 'inferred you were nervous to bring this up, and that the underlying feeling was clear even if the wording wasn\'t.',
+      predictedEffect: 'they will likely read this as direct and easy to respond to — clearer, but with no sign you were nervous.',
+      giveUp: 'the visible hesitation itself — which may have told them something true about how hard this was to say.',
+      revisedLabel: 'removed hesitation, increased confidence, clarified the emotion'
+    };
+  }
   if (lower.includes('no') || lower.includes("can't") || lower.includes('cant') || lower.includes('busy')) {
     return {
       revised: text.replace(/no\b/i, 'not right now, but').trim() + (text.endsWith('.') ? '' : '.'),
-      why: 'softened this because it predicted the other person might read a flat "no" as rejection.'
+      removed: ['the flat "no"'],
+      inferred: 'inferred a flat refusal here could be read as rejection rather than a simple scheduling conflict.',
+      predictedEffect: 'they will likely feel less rejected and more like this is circumstantial, not personal.',
+      giveUp: 'the directness of a plain "no" — the revised version asks a little more of them to read between the lines.',
+      revisedLabel: 'softened the refusal'
     };
   }
   if (text.length > 0 && text === text.toUpperCase() && text.length > 4) {
     return {
       revised: text.charAt(0) + text.slice(1).toLowerCase(),
-      why: 'lowered the intensity — it predicted this might read as anger, intended or not.'
+      removed: ['the all-caps emphasis'],
+      inferred: 'inferred the capitalization would read as anger, whether or not that was intended.',
+      predictedEffect: 'they will likely feel less confronted, and may not sense any urgency or intensity at all.',
+      giveUp: 'whatever real intensity you meant to convey — the machine can\'t tell the difference between anger and just emphasis.',
+      revisedLabel: 'lowered the intensity'
     };
   }
   if (lower.includes('fine')) {
     return {
       revised: text.replace(/fine/i, "okay, actually kind of frustrated"),
-      why: 'flagged "fine" as likely insincere and offered a more direct alternative.'
+      removed: ['the word "fine" as a stand-in for an unstated feeling'],
+      inferred: 'inferred "fine" was likely insincere, based on common patterns in how people use that word.',
+      predictedEffect: 'they will likely take this more seriously and probably ask a follow-up question.',
+      giveUp: 'the option to leave things vague — sometimes "fine" is doing real, deliberate work.',
+      revisedLabel: 'named the feeling "fine" was covering for'
     };
   }
   return null;
 }
 
 let pendingText = null;
+let tally = { accepted: 0, rejected: 0, unedited: 0 };
 function trySend() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
@@ -552,22 +656,44 @@ function trySend() {
       pendingText = { original: text, revised: edit.revised };
       document.getElementById('origText').textContent = text;
       document.getElementById('revText').textContent = edit.revised;
-      document.getElementById('whyText').textContent = 'AI changed this because it ' + edit.why;
+      document.getElementById('removedText').textContent = edit.revisedLabel + ' — removed: ' + edit.removed.join('; ');
+      document.getElementById('whyText').textContent = 'it ' + edit.inferred;
+      document.getElementById('predictText').textContent = edit.predictedEffect;
+      document.getElementById('giveupText').textContent = edit.giveUp;
       document.getElementById('intercept').classList.add('show');
       input.value = '';
       return;
     }
   }
+  tally.unedited += 1;
   sendFinal(text);
   input.value = '';
+  renderTally();
 }
 function acceptEdit() {
+  tally.accepted += 1;
   sendFinal(pendingText.revised, true);
   document.getElementById('intercept').classList.remove('show');
+  renderTally();
 }
 function rejectEdit() {
+  tally.rejected += 1;
   sendFinal(pendingText.original, false);
   document.getElementById('intercept').classList.remove('show');
+  renderTally();
+}
+function renderTally() {
+  const total = tally.accepted + tally.rejected;
+  const el = document.getElementById('tallyBox');
+  if (total === 0) { el.textContent = ''; return; }
+  let note = '';
+  if (total >= 3) {
+    const rate = tally.accepted / total;
+    note = rate > 0.6 ? ' — you\'re accepting most of its edits. worth asking why.'
+         : rate < 0.4 ? ' — you\'re mostly overriding it. is it wrong, or just not you?'
+         : ' — you\'re about evenly split between the machine\'s version and your own.';
+  }
+  el.textContent = `accepted the machine's version: ${tally.accepted} · sent your own: ${tally.rejected}${note}`;
 }
 function sendFinal(text, wasEdited) {
   addBubble('me', text);
@@ -591,11 +717,22 @@ addBubble('them', "hey, are we still on for saturday?");
 /* ===== social_data.html ===== */
 const events = [];
 const colors = { shared:'#000080', disagreed:'#a0522d', introduced:'#2f5b3e', returned:'#6b2fa0' };
-const centerA = { x: 100, y: 150 };
-const centerB = { x: 300, y: 150 };
+const centerA = { x: 100, y: 130 };
+const centerB = { x: 300, y: 130 };
+
+const flavorText = {
+  shared: ["you told them about your grandmother's garden.", "you shared a worry you hadn't said out loud yet.", "you told them how your day actually went, not the short version."],
+  disagreed: ["you disagreed about whether the movie was any good.", "you pushed back on something they said and meant it.", "neither of you backed down, and that was okay."],
+  introduced: ["you introduced them to a song you'd had on repeat.", "you showed them a place you used to go as a kid.", "you brought up something you'd never told anyone."],
+  returned: ["you came back to a conversation from months ago.", "you finally answered a question they'd asked a while back.", "you remembered something they'd forgotten they said."]
+};
+function pickFlavor(kind) {
+  const pool = flavorText[kind];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 function logEvent(kind) {
-  events.push(kind);
+  events.push({ kind, text: pickFlavor(kind) });
   render();
 }
 
@@ -605,45 +742,60 @@ function render() {
   svg.innerHTML += nodeCircle(centerA.x, centerA.y, 18, '#000080', 'A');
   svg.innerHTML += nodeCircle(centerB.x, centerB.y, 18, '#000080', 'B');
 
-  events.forEach((kind, i) => {
+  events.forEach((e, i) => {
     const t = (i+1) / (events.length+1);
-    const jitterY = 55 * Math.sin(i * 1.7);
+    const jitterY = 50 * Math.sin(i * 1.7);
     const x = centerA.x + (centerB.x - centerA.x) * t;
-    const y = 150 + jitterY;
-    svg.innerHTML += `<line x1="${centerA.x}" y1="${centerA.y}" x2="${x}" y2="${y}" stroke="${colors[kind]}" stroke-width="1.5" opacity="0.5"/>`;
-    svg.innerHTML += `<line x1="${centerB.x}" y1="${centerB.y}" x2="${x}" y2="${y}" stroke="${colors[kind]}" stroke-width="1.5" opacity="0.5"/>`;
-    svg.innerHTML += `<circle cx="${x}" cy="${y}" r="6" fill="${colors[kind]}"><title>${kind}</title></circle>`;
+    const y = 130 + jitterY;
+    svg.innerHTML += `<line x1="${centerA.x}" y1="${centerA.y}" x2="${x}" y2="${y}" stroke="${colors[e.kind]}" stroke-width="1.5" opacity="0.5"/>`;
+    svg.innerHTML += `<line x1="${centerB.x}" y1="${centerB.y}" x2="${x}" y2="${y}" stroke="${colors[e.kind]}" stroke-width="1.5" opacity="0.5"/>`;
+    svg.innerHTML += `<circle cx="${x}" cy="${y}" r="6" fill="${colors[e.kind]}"><title>${e.kind}</title></circle>`;
   });
 
-  document.getElementById('summaryLine').textContent = buildSummary();
-  renderNumbers();
+  renderHumanLog();
+  renderMetrics();
+  renderReflectQuestion();
 }
 
 function nodeCircle(x,y,r,fill,label) {
   return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="#fff" font-family="Georgia" font-size="14">${label}</text>`;
 }
 
-function buildSummary() {
-  if (events.length === 0) return 'nothing has happened between you yet.';
-  const counts = {};
-  events.forEach(e => counts[e] = (counts[e]||0) + 1);
-  const parts = [];
-  if (counts.shared) parts.push(`${counts.shared} thing${counts.shared>1?'s':''} shared`);
-  if (counts.disagreed) parts.push(`${counts.disagreed} disagreement${counts.disagreed>1?'s':''}`);
-  if (counts.introduced) parts.push(`${counts.introduced} new thing${counts.introduced>1?'s':''} introduced`);
-  if (counts.returned) parts.push(`${counts.returned} old topic${counts.returned>1?'s':''} returned to`);
-  return `between A and B: ` + parts.join(', ') + ' — a shape, not a score.';
+function renderHumanLog() {
+  const el = document.getElementById('humanLog');
+  if (events.length === 0) { el.innerHTML = '<em>nothing yet.</em>'; return; }
+  el.innerHTML = events.slice().reverse().map(e => `<div class="entry">${e.text}</div>`).join('');
 }
 
-function toggleNumbers() {
-  document.getElementById('numbersBox').classList.toggle('show');
-}
-function renderNumbers() {
+// simple stable hash so "similarity" doesn't jump around randomly on every click
+function stableHash(n) { return Math.abs(Math.sin(n * 12.9898) * 43758.5453) % 1; }
+
+function renderMetrics() {
   const counts = { shared:0, disagreed:0, introduced:0, returned:0 };
-  events.forEach(e => counts[e]++);
-  document.getElementById('numbersBox').innerHTML =
-    `shared: ${counts.shared} · disagreed: ${counts.disagreed} · introduced: ${counts.introduced} · returned: ${counts.returned}
-     <br><span style="font-size:11px; color:#666;">notice how much flatter this feels than the shape above, for the exact same events.</span>`;
+  events.forEach(e => counts[e.kind]++);
+  const total = events.length;
+  const topics = Object.values(counts).filter(c => c > 0).length;
+  const similarity = total === 0 ? '—' : Math.round(40 + stableHash(total) * 40) + '%';
+  const engagement = Math.min(100, total * 12);
+
+  document.getElementById('mInteractions').textContent = total;
+  document.getElementById('mSimilarity').textContent = similarity;
+  document.getElementById('mTopics').textContent = topics;
+  document.getElementById('mDisagreements').textContent = counts.disagreed;
+  document.getElementById('mEngagement').textContent = total === 0 ? '0' : engagement + '/100';
+}
+
+function renderReflectQuestion() {
+  const el = document.getElementById('reflectQuestion');
+  if (events.length === 0) { el.textContent = ''; return; }
+  el.textContent = 'both views above describe the same events. which one would you rather have a platform show you — and which one would you rather it kept to itself?';
+}
+
+function setView(which) {
+  document.getElementById('btnFelt').classList.toggle('active', which==='felt');
+  document.getElementById('btnSystem').classList.toggle('active', which==='system');
+  document.getElementById('feltView').style.display = which==='felt' ? 'block':'none';
+  document.getElementById('systemView').style.display = which==='system' ? 'block':'none';
 }
 
 render();

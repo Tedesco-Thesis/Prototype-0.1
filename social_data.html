@@ -15,7 +15,7 @@
     <div class="winbody">
       <div class="kicker">PROTOTYPE 05 — THE SOCIAL DATA WEB</div>
       <h1 class="roomtitle">a relationship, not a dashboard</h1>
-      <div class="q">prototype question: can data represent a relationship instead of reducing it to a metric? log a few exchanges between two people and watch what forms — a constellation, not a follower count.</div>
+      <div class="q">both representations below describe the exact same relationship. what does each one let you see, and what does each make impossible to see?</div>
 
       <div class="actionRow">
         <button onclick="logEvent('shared')">shared a thought</button>
@@ -24,13 +24,38 @@
         <button onclick="logEvent('returned')">returned to an old topic</button>
       </div>
 
-      <div class="stage">
-        <svg id="svgStage" viewBox="0 0 400 300"></svg>
-        <div class="summary" id="summaryLine">nothing has happened between you yet.</div>
+      <div class="dual-view">
+        <button class="active" id="btnFelt" onclick="setView('felt')">how it felt</button>
+        <button id="btnSystem" onclick="setView('system')">what the system recorded</button>
       </div>
 
-      <div class="toggleNumbers"><a onclick="toggleNumbers()">show the numbers instead</a></div>
-      <div class="numbers" id="numbersBox"></div>
+      <div id="feltView">
+        <div class="stage">
+          <svg id="svgStage" viewBox="0 0 400 260"></svg>
+        </div>
+        <div class="human-log" id="humanLog"><em>nothing yet.</em></div>
+      </div>
+
+      <div id="systemView" style="display:none;">
+        <div class="metrics-panel">
+          <div class="stat-row"><span>INTERACTIONS</span><span id="mInteractions">0</span></div>
+          <div class="stat-row"><span>SIMILARITY SCORE</span><span id="mSimilarity">—</span></div>
+          <div class="stat-row"><span>TOPICS</span><span id="mTopics">0</span></div>
+          <div class="stat-row"><span>DISAGREEMENTS</span><span id="mDisagreements">0</span></div>
+          <div class="stat-row"><span>ENGAGEMENT SCORE</span><span id="mEngagement">0</span></div>
+        </div>
+      </div>
+
+      <div class="findings" id="reflectQuestion" style="margin-top:14px;"></div>
+
+      <details class="testing-footer">
+        <summary>what this prototype is testing</summary>
+        <div><b>QUESTION:</b> can data represent a relationship without reducing it to a metric — and is the qualitative version automatically better?</div>
+        <div><b>INTERVENTION:</b> the exact same logged events are shown two ways: as specific remembered moments, and as a standard engagement dashboard.</div>
+        <div><b>TRADEOFF:</b> the human log is more specific and harder to compare across relationships; the metrics panel is instantly comparable and completely illegible about what actually happened.</div>
+        <div><b>OBSERVATION:</b> notice which view you check first after logging a few events, and whether the "engagement score" changes how the relationship feels even though nothing about it actually changed.</div>
+        <div><b>LIMITATION:</b> both views here are equally fabricated by this prototype — a real version would need to reckon with which one a platform actually has an incentive to show you by default.</div>
+      </details>
     </div>
   </div>
 </div>
