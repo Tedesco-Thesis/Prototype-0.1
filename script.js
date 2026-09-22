@@ -135,6 +135,23 @@ document.addEventListener('click', (e) => {
 
 /* ---------------- CLOCK ---------------- */
 
+/* ---------------- YOUR TRACE (cross-room synthesis) ---------------- */
+let lettersSentCount = 0;
+let worksSignedCount = 0;
+function updateTrace() {
+  const el = document.getElementById('traceBox');
+  if (!el) return;
+  const parts = [];
+  parts.push(dataMailed ? 'you traded a week of data in the data room.' : 'you haven\'t traded anything in the data room yet.');
+  parts.push(lettersSentCount > 0 ? `you've sent ${lettersSentCount} letter${lettersSentCount===1?'':'s'} that took real time to write.` : 'you haven\'t written a letter yet.');
+  parts.push(worksSignedCount > 0 ? `you've signed ${worksSignedCount} piece${worksSignedCount===1?'':'s'} of visible work.` : 'you haven\'t signed anything in the gallery yet.');
+  const doneCount = [dataMailed, lettersSentCount > 0, worksSignedCount > 0].filter(Boolean).length;
+  let closing = '';
+  if (doneCount === 3) closing = 'you\'ve given something in every room. does it feel like one place, or three separate favors?';
+  else if (doneCount === 0) closing = 'nothing yet — every room here asks for something before it gives something back.';
+  el.innerHTML = parts.map(p => `<div class="trace-line">${p}</div>`).join('') + `<div style="margin-top:6px; font-style:italic; font-size:11px;">${closing}</div>`;
+}
+
 /* ---------------- DATA ROOM ---------------- */
 const myGrid = document.getElementById('myGrid');
 const myLevels = new Array(28).fill(0);
@@ -169,6 +186,7 @@ function mailData() {
     pg.appendChild(cell);
   }
   reveal.style.display = 'block';
+  updateTrace();
 }
 
 /* ---------------- CORRESPONDENCE ROOM ---------------- */
@@ -222,6 +240,8 @@ function sendMail() {
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('mailVoice').textContent = 'it\'s on its way now.';
   document.getElementById('mailTimer').textContent = '';
+  lettersSentCount += 1;
+  updateTrace();
 }
 
 /* ---------------- SIGNED-WORK ROOM ---------------- */
@@ -254,7 +274,10 @@ function signWork() {
       </div>
       <div class="not-for-sale">not for sale — provenance only</div>
     </div>`;
+  worksSignedCount += 1;
+  updateTrace();
 }
+updateTrace();
 
 
 /* ===== personal_web.html ===== */
@@ -524,23 +547,31 @@ const people = [
   { name:'Wren', tags:['javascript','code'], about:'shares an office with Sam. not really a coder, honestly.', weak:true },
 ];
 
+const disagreePairs = [
+  { a: 'Mina', b: 'Jon', topic: 'how to get into old websites' },
+  { a: 'Aiko', b: 'Lucia', topic: 'how patient you need to be in the kitchen' },
+];
+
 const canned = {
   'Mina': "sure — start with a webring. don't overthink your homepage, just make it. (Jon disagrees with me on this, for what it's worth.)",
   'Jon': "honestly? I think Mina's wrong on this one — webrings are cute but they just slow you down. go straight to the wayback machine.",
   'Priya': "go out at dawn. bring coffee. don't expect much the first few times.",
   'Deshawn': "there's no right way to write about it. just start with one true detail.",
-  'Aiko': "start with something forgiving, like sauerkraut. it's hard to mess up.",
+  'Aiko': "take your time — ferment it slow, taste it every day, let it tell you when it's ready. (Lucia will tell you this is overkill. it's not.)",
   'Sam': "depends what you're building. what are you actually trying to make?",
   'Okafor': "i'll send my reading list. read the introductions first, always.",
   'Mara': "i don't really have advice. i just keep making the thing.",
   'Theo': "start with one song you can't listen to yet. build outward from there.",
-  'Lucia': "butter, not oil. i don't care what the recipe says.",
+  'Lucia': "honestly, Aiko takes way too long with everything. taste it once, trust yourself, move on. butter, not oil, though — she's right about that part.",
   'Wren': "honestly, not really my area — ask Sam instead, they'll actually know."
 };
+
+let askedThisSearch = new Set();
 
 function search() {
   const q = document.getElementById('q').value.toLowerCase().trim();
   const results = document.getElementById('results');
+  askedThisSearch = new Set();
   if (!q) { results.innerHTML = '<div class="empty">ask about something.</div>'; return; }
 
   const scored = people.map(p => {
@@ -563,12 +594,43 @@ function search() {
       <button class="askbtn" onclick="ask('${s.p.name}', this)">ask ${s.p.name}</button>
       <div class="reply" id="reply-${s.p.name}">${canned[s.p.name]}</div>
     </div>
-  `).join('');
+  `).join('') + '<div id="beliefChoiceArea"></div>';
 }
 
 function ask(name, btn) {
   document.getElementById('reply-' + name).classList.add('show');
   btn.disabled = true;
+  askedThisSearch.add(name);
+  checkForDisagreement();
+}
+
+function checkForDisagreement() {
+  const area = document.getElementById('beliefChoiceArea');
+  if (!area) return;
+  for (const pair of disagreePairs) {
+    if (askedThisSearch.has(pair.a) && askedThisSearch.has(pair.b) && !document.getElementById('belief-' + pair.a + '-' + pair.b)) {
+      const div = document.createElement('div');
+      div.className = 'disagree-box';
+      div.id = 'belief-' + pair.a + '-' + pair.b;
+      div.innerHTML = `
+        <div style="margin-bottom:8px;">${pair.a} and ${pair.b} disagree about ${pair.topic}. there's no way to verify either from here — who do you believe?</div>
+        <button class="askbtn" onclick="pickBelief('${pair.a}','${pair.b}', this)">${pair.a}</button>
+        <button class="askbtn" onclick="pickBelief('${pair.b}','${pair.a}', this)">${pair.b}</button>
+        <button class="askbtn" onclick="pickBelief('neither','', this)">genuinely not sure</button>
+        <div class="belief-result" style="margin-top:8px; font-size:12px; font-style:italic;"></div>
+      `;
+      area.appendChild(div);
+    }
+  }
+}
+
+function pickBelief(chosen, other, btn) {
+  const box = btn.closest('.disagree-box');
+  box.querySelectorAll('button').forEach(b => b.disabled = true);
+  const resultEl = box.querySelector('.belief-result');
+  resultEl.textContent = chosen === 'neither'
+    ? "you're staying uncertain. that's a legitimate place to land — not every disagreement needs resolving."
+    : `you picked ${chosen}. that's not verified, just noted — worth noticing what made you trust them over ${other}.`;
 }
 
 
@@ -640,11 +702,25 @@ function machineEdit(text) {
       revisedLabel: 'named the feeling "fine" was covering for'
     };
   }
+  // a genuinely low-stakes, hard-to-object-to edit — not every intervention should cost something real
+  if (!/[.!?]\s*$/.test(text.trim()) && text.trim().length > 15) {
+    const t = text.trim();
+    const revised = t.charAt(0).toUpperCase() + t.slice(1) + (/[,]$/.test(t) ? '' : '.');
+    return {
+      revised,
+      removed: ['a run-on, unpunctuated feel'],
+      inferred: 'inferred you just typed quickly, with no particular intention behind the missing punctuation.',
+      predictedEffect: 'no real difference — this is about as low-stakes as an edit gets.',
+      giveUp: 'almost nothing. maybe a little of your actual, unpolished typing voice.',
+      revisedLabel: 'added punctuation and capitalization',
+      lowStakes: true
+    };
+  }
   return null;
 }
 
 let pendingText = null;
-let tally = { accepted: 0, rejected: 0, unedited: 0 };
+let tally = { accepted: 0, rejected: 0, modified: 0, unedited: 0 };
 function trySend() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
@@ -656,10 +732,14 @@ function trySend() {
       pendingText = { original: text, revised: edit.revised };
       document.getElementById('origText').textContent = text;
       document.getElementById('revText').textContent = edit.revised;
-      document.getElementById('removedText').textContent = edit.revisedLabel + ' — removed: ' + edit.removed.join('; ');
+      document.getElementById('removedText').textContent = (edit.lowStakes ? '(low-stakes) ' : '') + edit.revisedLabel + ' — removed: ' + edit.removed.join('; ');
       document.getElementById('whyText').textContent = 'it ' + edit.inferred;
       document.getElementById('predictText').textContent = edit.predictedEffect;
       document.getElementById('giveupText').textContent = edit.giveUp;
+      document.getElementById('editArea').value = edit.revised;
+      document.getElementById('editArea').style.display = 'none';
+      document.getElementById('sendEditedBtn').style.display = 'none';
+      document.getElementById('editEditBtn').style.display = 'inline-block';
       document.getElementById('intercept').classList.add('show');
       input.value = '';
       return;
@@ -672,33 +752,48 @@ function trySend() {
 }
 function acceptEdit() {
   tally.accepted += 1;
-  sendFinal(pendingText.revised, true);
+  sendFinal(pendingText.revised, 'accepted');
   document.getElementById('intercept').classList.remove('show');
   renderTally();
 }
 function rejectEdit() {
   tally.rejected += 1;
-  sendFinal(pendingText.original, false);
+  sendFinal(pendingText.original, 'rejected');
+  document.getElementById('intercept').classList.remove('show');
+  renderTally();
+}
+function startEditingEdit() {
+  document.getElementById('editArea').style.display = 'block';
+  document.getElementById('sendEditedBtn').style.display = 'inline-block';
+  document.getElementById('editEditBtn').style.display = 'none';
+}
+function sendEditedVersion() {
+  const text = document.getElementById('editArea').value.trim();
+  if (!text) return;
+  tally.modified += 1;
+  sendFinal(text, 'modified');
   document.getElementById('intercept').classList.remove('show');
   renderTally();
 }
 function renderTally() {
-  const total = tally.accepted + tally.rejected;
+  const total = tally.accepted + tally.rejected + tally.modified;
   const el = document.getElementById('tallyBox');
   if (total === 0) { el.textContent = ''; return; }
   let note = '';
   if (total >= 3) {
     const rate = tally.accepted / total;
-    note = rate > 0.6 ? ' — you\'re accepting most of its edits. worth asking why.'
-         : rate < 0.4 ? ' — you\'re mostly overriding it. is it wrong, or just not you?'
-         : ' — you\'re about evenly split between the machine\'s version and your own.';
+    note = rate > 0.6 ? ' — you\'re accepting most of its edits as-is. worth asking why.'
+         : tally.modified > tally.accepted && tally.modified > tally.rejected ? ' — you keep meeting it halfway rather than fully accepting or rejecting.'
+         : rate < 0.3 ? ' — you\'re mostly overriding it. is it wrong, or just not you?'
+         : ' — a mix of accepting, rejecting, and rewriting.';
   }
-  el.textContent = `accepted the machine's version: ${tally.accepted} · sent your own: ${tally.rejected}${note}`;
+  el.textContent = `sent as machine wrote it: ${tally.accepted} · sent your own: ${tally.rejected} · sent your edit of its edit: ${tally.modified}${note}`;
 }
-function sendFinal(text, wasEdited) {
+function sendFinal(text, kind) {
   addBubble('me', text);
-  if (wasEdited === true) addAnnotation('(sent the machine\'s version)');
-  if (wasEdited === false) addAnnotation('(you overrode the machine)');
+  if (kind === 'accepted') addAnnotation('(sent the machine\'s version, unchanged)');
+  if (kind === 'rejected') addAnnotation('(you overrode the machine entirely)');
+  if (kind === 'modified') addAnnotation('(you took the machine\'s suggestion and rewrote it yourself)');
   setTimeout(() => replyFrom(text), 500 + Math.random()*500);
 }
 function replyFrom(lastText) {

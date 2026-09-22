@@ -38,6 +38,9 @@
         <div id="giveupText" style="margin-bottom:10px; font-size:12px; font-weight:bold;"></div>
         <button onclick="acceptEdit()">send the machine's version</button>
         <button onclick="rejectEdit()">send what I actually wrote</button>
+        <button id="editEditBtn" onclick="startEditingEdit()">edit it myself</button>
+        <textarea class="field" id="editArea" rows="2" style="display:none; margin-top:8px;"></textarea>
+        <button id="sendEditedBtn" onclick="sendEditedVersion()" style="display:none; margin-top:6px;">send my edited version</button>
       </div>
 
       <div class="thread" id="thread"></div>
@@ -50,7 +53,7 @@
       <details class="testing-footer">
         <summary>what this prototype is testing</summary>
         <div><b>QUESTION:</b> if AI mediation makes communication clearer, kinder, and more effective, what happens to the ambiguity, hesitation, and authorship of the original message?</div>
-        <div><b>INTERVENTION:</b> the machine's edits are shown in full before sending — including what it removed, what it inferred about your emotional state, and what you specifically give up by accepting.</div>
+        <div><b>INTERVENTION:</b> the machine's edits are shown in full before sending — including what it removed, what it inferred, the predicted effect on the recipient, what you give up by accepting, and a third option to take its suggestion and rewrite it yourself rather than only accept or reject wholesale. Not every edit costs something significant — some are genuinely low-stakes, so accepting isn't always a meaningful concession.</div>
         <div><b>TRADEOFF:</b> the machine's version is usually more legible and less likely to be misread — at the cost of the hesitation or roughness that may have been part of what you actually meant.</div>
         <div><b>OBSERVATION:</b> watch your own accept/reject pattern over several messages — do you accept more often as the conversation goes on, and do you notice when you stop reading the intercept panel closely?</div>
         <div><b>LIMITATION:</b> this machine is honest about its edits by design — a real deployed system has no incentive to show you what it removed, which is itself a finding worth sitting with.</div>

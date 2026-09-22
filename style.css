@@ -596,3 +596,8 @@ h3.cmp { font-family:'Courier New',monospace; font-size:12px; margin:14px 0 6px;
 .human-log .entry { padding:6px 0; border-bottom:1px dotted #cfc09a; }
 .metrics-panel { font-family:'Courier New',monospace; font-size:12px; }
 .metrics-panel .stat-row { display:flex; justify-content:space-between; border-bottom:1px solid #d8cba0; padding:5px 0; }
+
+/* ===== third_space.html: cross-room trace panel ===== */
+.trace-box { background:#fffef9; border:1px inset #999; padding:8px; font-size:12px; }
+.trace-box .trace-line { padding:3px 0; border-bottom:1px dotted #cfc09a; }
+.trace-box .trace-line:last-child { border-bottom:none; }
