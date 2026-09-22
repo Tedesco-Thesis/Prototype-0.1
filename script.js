@@ -18,6 +18,8 @@ const ghostTexts = [
   "click here to enter", "add me to your links page"
 ];
 const desktop = document.getElementById('desktop');
+const isThirdSpace = document.getElementById('startMenu') !== null;
+if (isThirdSpace) {
 for (let i = 0; i < 10; i++) {
   const g = document.createElement('div');
   g.className = 'ghost';
@@ -26,6 +28,7 @@ for (let i = 0; i < 10; i++) {
   g.style.left = Math.random() * 80 + '%';
   g.style.animationDelay = (Math.random() * 9) + 's';
   desktop.appendChild(g);
+}
 }
 
 /* ---------------- DESKTOP ICONS ---------------- */
@@ -42,7 +45,7 @@ icons.forEach(ic => {
   div.style.left = ic.left + 'px';
   div.innerHTML = `<div class="glyph">${ic.glyph}</div><div class="label">${ic.label}</div>`;
   div.onclick = () => openWindow(ic.id);
-  desktop.appendChild(div);
+  if (isThirdSpace) desktop.appendChild(div);
 });
 
 /* ---------------- WINDOW MANAGEMENT ---------------- */
@@ -127,6 +130,7 @@ function toggleStart(force) {
 }
 document.addEventListener('click', (e) => {
   const m = document.getElementById('startMenu');
+  if (!m) return;
   if (!m.contains(e.target) && e.target.id !== 'menubtn') {
     m.classList.remove('open');
     document.getElementById('menubtn').classList.remove('active');
@@ -155,6 +159,7 @@ function updateTrace() {
 /* ---------------- DATA ROOM ---------------- */
 const myGrid = document.getElementById('myGrid');
 const myLevels = new Array(28).fill(0);
+if (myGrid) {
 for (let i = 0; i < 28; i++) {
   const cell = document.createElement('div');
   cell.className = 'datacell';
@@ -163,6 +168,7 @@ for (let i = 0; i < 28; i++) {
     cell.className = 'datacell' + (myLevels[i] ? ' lvl' + myLevels[i] : '');
   };
   myGrid.appendChild(cell);
+}
 }
 let dataMailed = false;
 function mailData() {
@@ -292,6 +298,7 @@ const available = [
 ];
 let blocks = {};
 const addRow = document.getElementById('addRow');
+if (addRow) {
 available.forEach(b => {
   const btn = document.createElement('button');
   btn.className = 'addbtn';
@@ -300,6 +307,7 @@ available.forEach(b => {
   btn.id = 'add-' + b.id;
   addRow.appendChild(btn);
 });
+}
 
 function addBlock(id) {
   if (blocks[id] !== undefined) return;
@@ -529,7 +537,7 @@ function tagFriction(tag, btn) {
   el.innerHTML += `<div>${mode}: tagged as "${tag}"</div>`;
 }
 
-setMode('optimized');
+if (document.getElementById('btnOpt')) setMode('optimized');
 
 
 /* ===== human_search_engine.html ===== */
